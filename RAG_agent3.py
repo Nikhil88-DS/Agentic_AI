@@ -42,7 +42,6 @@ for pdf in pdf_files:
 
 
 try:
-     #pages =  all_docs.load()
      print(f"Loaded {len(all_docs)} pages from {len(pdf_files)} Pdfs.")
 except Exception as e:
      print(f"Error loading PDF: {e}")
