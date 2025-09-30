@@ -1,6 +1,6 @@
 import streamlit as st
 from langchain_core.messages import HumanMessage
-from Agents.RAG_agent3 import rag_agent  # ⬅️ replace with your actual filename (without .py)
+from RAG_agent3 import rag_agent  # ⬅️ replace with your actual filename (without .py)
 
 # ======================
 # STREAMLIT APP
