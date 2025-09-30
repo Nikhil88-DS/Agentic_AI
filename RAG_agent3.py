@@ -23,7 +23,7 @@ embeddings = OpenAIEmbeddings( model = "text-embedding-3-small")
 import streamlit as st
 
 #pdf_path = ["MODEL_BYE_LAWS.pdf", "MCS_Amendment_2019.pdf"]
-pdf_folder = r"C:\Users\ADMIN\Desktop\OneDrive\Python_Projects\Gen AI Project Practical\Agentic AI\Pdf_files"
+pdf_folder = os.getenv("pdf_folder")
 
 #get all pdf files from the folder
 pdf_files = [os.path.join(pdf_folder,f) for f in os.listdir(pdf_folder) if f.endswith(".pdf")]
@@ -53,7 +53,7 @@ except Exception as e:
 text_splitter = RecursiveCharacterTextSplitter(chunk_size = 1000, chunk_overlap = 200)
 
 pages_split = text_splitter.split_documents(all_docs)
-persist_directory = r"C:\Users\ADMIN\Desktop\OneDrive\Python_Projects\Gen AI Project Practical\Agentic AI\ChromaDB_Dir"
+persist_directory = os.getenv("persist_directory")
 collection_name = "society_bye-laws"
 
 
