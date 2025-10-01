@@ -9,6 +9,9 @@ from langchain_openai import ChatOpenAI
 from langchain_community.document_loaders import PyPDFLoader
 from langchain_community.vectorstores import Chroma
 from langchain.text_splitter import RecursiveCharacterTextSplitter
+#from langchain_community.tools.tavily_search import TavilySearchResults
+from langchain_tavily import TavilySearch
+
 
 
 from langchain_core.tools import tool
@@ -16,6 +19,7 @@ from langchain_core.tools import tool
 load_dotenv()
 
 llm = ChatOpenAI(model ="gpt-4o-mini", temperature = 0) #to get deterministic output so that model does not hallucinate - temperature = 0
+
 
 #Embedding model has to be compatible with LLM
 embeddings = OpenAIEmbeddings( model = "text-embedding-3-small")
@@ -91,6 +95,8 @@ if vectorstore is None:
 retriever = vectorstore.as_retriever(search_type = "similarity",search_kwargs = {"k": 8})#k is the amount of chunks to return
 
 
+tavily_search = TavilySearch(api_key=os.getenv("TAVILY_API_KEY"), max_results=5)
+
 @tool
 def retriever_tool(query:str) -> str:
     """
@@ -100,7 +106,7 @@ def retriever_tool(query:str) -> str:
     docs = retriever.invoke(query)
     
     if not docs:
-        return "i   found no relevant information in the society bye-laws document"
+        return "i  found no relevant information in the society bye-laws document"
     
     results = []
     for i, doc in enumerate(docs):
@@ -108,7 +114,19 @@ def retriever_tool(query:str) -> str:
     
     return "\n\n".join(results) 
 
-tools = [retriever_tool]
+@tool
+def tavily_tool(query: str) -> str:
+    """
+    This tool searches the web using Tavily and returns up-to-date information.
+    Useful when the answer is not in the Society Bye-laws PDF.
+    """
+    try:
+        results = tavily_search.run(query)
+        return f"Web search results:\n{results}"
+    except Exception as e:
+        return f"Error using Tavily search: {str(e)}"
+
+tools = [retriever_tool, tavily_tool]
 
 llm = llm.bind_tools(tools)
 
@@ -164,7 +182,7 @@ def take_action(state: AgentState) -> AgentState:
         #appends the tool message
         results.append(ToolMessage(tool_call_id= t['id'], name = t['name'], content = str(result)))
         
-    print("Tools  execution complet, bacck to model")
+    print("Tools  execution complete, back to model")
     return {'messages': results}
 
 
